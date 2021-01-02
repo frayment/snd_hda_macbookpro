@@ -16,6 +16,7 @@ build_dir='build'
 update_dir="/lib/modules/$(uname -r)/updates"
 patch_dir='patch_cirrus'
 hda_dir="$build_dir/hda-$kernel_version"
+conf_dir="conf"
 
 [[ ! -d $update_dir ]] && mkdir $update_dir
 [[ ! -d $build_dir ]] && mkdir $build_dir
@@ -105,6 +106,12 @@ if [ $major_version -eq 5 -a $minor_version -ge 6 ]; then
    sed -i 's/getnstimeofday/ktime_get_real_ts64/' $hda_dir/patch_cirrus.c
    sed -i 's/getnstimeofday/ktime_get_real_ts64/' $hda_dir/patch_cirrus_new84.h
 fi
+
+# install the necessary configuration files for audio
+here="$PWD"
+cd $conf_dir
+sh install.sh
+cd $here
 
 cd $hda_dir
 
