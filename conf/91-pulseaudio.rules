@@ -1,0 +1,7 @@
+SUBSYSTEM!="sound", GOTO="pulseaudio_end"
+ACTION!="change", GOTO="pulseaudio_end"
+KERNEL!="card*", GOTO="pulseaudio_end"
+
+SUBSYSTEMS=="pci", RESULT=="?*", ATTRS{vendor}=="0x8086", ATTRS{device}=="0x9d70", ENV{PULSE_PROFILE_SET}="apple-cirrus.conf"
+
+LABEL="pulseaudio_end"
