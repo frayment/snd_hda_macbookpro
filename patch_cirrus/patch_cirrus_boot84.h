@@ -20,7 +20,7 @@ static void setup_reset_and_clear(struct hda_codec *codec)
 
         retval = snd_hda_codec_read_check(codec, codec->core.afg, 0, AC_VERB_PARAMETERS, 0x00000004, 0x00020046, 6); // 0x001f0004
         retval = snd_hda_codec_read_check(codec, codec->core.afg, 0, AC_VERB_PARAMETERS, 0x00000005, 0x00000101, 7); // 0x001f0005
-        retval = snd_hda_codec_read_check(codec, codec->core.afg, 0, AC_VERB_GET_SUBSYSTEM_ID, 0x00000000, 0x106b3900, 8); // 0x001f2000
+        retval = snd_hda_codec_read_check(codec, codec->core.afg, 0, AC_VERB_GET_SUBSYSTEM_ID, 0x00000000, codec->core.subsystem_id, 8); // 0x001f2000
 
         retval = snd_hda_codec_read_check(codec, 0x00, 0, AC_VERB_PARAMETERS, 0x00000000, 0x10138409, 9); // 0x000f0000
         retval = snd_hda_codec_read_check(codec, 0x00, 0, AC_VERB_PARAMETERS, 0x00000002, 0x00100100, 10); // 0x000f0002
@@ -57,7 +57,7 @@ static void setup_reset_and_clear(struct hda_codec *codec)
         //snd_hda_codec_write(codec, codec->core.afg, 0, AC_VERB_SET_POWER_STATE, 0x00000000); // 0x00170500
         hda_set_node_power_state(codec, codec->core.afg, AC_PWRST_D0);
 
-        retval = snd_hda_codec_read_check(codec, codec->core.afg, 0, AC_VERB_GET_SUBSYSTEM_ID, 0x00000000, 0x106b3900, 22); // 0x001f2000
+        retval = snd_hda_codec_read_check(codec, codec->core.afg, 0, AC_VERB_GET_SUBSYSTEM_ID, 0x00000000, codec->core.subsystem_id, 22); // 0x001f2000
         retval = snd_hda_codec_read_check(codec, codec->core.afg, 0, AC_VERB_PARAMETERS, 0x00000008, 0x00010000, 23); // 0x001f0008
 
         retval = snd_hda_codec_read_check(codec, codec->core.afg, 0, AC_VERB_GET_GPIO_DIRECTION, 0x00000000, 0x00000000, 24); // 0x001f1700
@@ -1505,12 +1505,28 @@ static void read_coefs_all(struct hda_codec *codec)
         snd_hda_coef_item(codec, 0, CS8409_VENDOR_NID, 0x0056, 0x0000, 0x00008000, 1148 ); //   coef read 1148
         snd_hda_coef_item(codec, 0, CS8409_VENDOR_NID, 0x0057, 0x0000, 0x00008000, 1152 ); //   coef read 1152
         snd_hda_coef_item(codec, 0, CS8409_VENDOR_NID, 0x0058, 0x0000, 0x00000400, 1156 ); //   coef read 1156
+        if (codec->core.subsystem_id == 0x106b3300)
+        {
+        snd_hda_coef_item(codec, 0, CS8409_VENDOR_NID, 0x0059, 0x0000, 0x0000002e, 1160 ); //   coef read 1160
+        snd_hda_coef_item(codec, 0, CS8409_VENDOR_NID, 0x005a, 0x0000, 0x00000000, 1164 ); //   coef read 1164
+        }
+        else
+        {
         snd_hda_coef_item(codec, 0, CS8409_VENDOR_NID, 0x0059, 0x0000, 0x00000074, 1160 ); //   coef read 1160
         snd_hda_coef_item(codec, 0, CS8409_VENDOR_NID, 0x005a, 0x0000, 0x0000007f, 1164 ); //   coef read 1164
+        }
         snd_hda_coef_item(codec, 0, CS8409_VENDOR_NID, 0x005b, 0x0000, 0x00000010, 1168 ); //   coef read 1168
         snd_hda_coef_item(codec, 0, CS8409_VENDOR_NID, 0x005c, 0x0000, 0x00000020, 1172 ); //   coef read 1172
+        if (codec->core.subsystem_id == 0x106b3300)
+        {
+        snd_hda_coef_item(codec, 0, CS8409_VENDOR_NID, 0x005d, 0x0000, 0x0000038e, 1176 ); //   coef read 1176
+        snd_hda_coef_item(codec, 0, CS8409_VENDOR_NID, 0x005e, 0x0000, 0x00001000, 1180 ); //   coef read 1180
+        }
+        else
+        {
         snd_hda_coef_item(codec, 0, CS8409_VENDOR_NID, 0x005d, 0x0000, 0x00002d7f, 1176 ); //   coef read 1176
         snd_hda_coef_item(codec, 0, CS8409_VENDOR_NID, 0x005e, 0x0000, 0x00002d7f, 1180 ); //   coef read 1180
+        }
         snd_hda_coef_item(codec, 0, CS8409_VENDOR_NID, 0x005f, 0x0000, 0x00001600, 1184 ); //   coef read 1184
         snd_hda_coef_item(codec, 0, CS8409_VENDOR_NID, 0x0060, 0x0000, 0x00000000, 1188 ); //   coef read 1188
         snd_hda_coef_item(codec, 0, CS8409_VENDOR_NID, 0x0061, 0x0000, 0x00000000, 1192 ); //   coef read 1192
@@ -1667,6 +1683,9 @@ static void enable_i2c(struct hda_codec *codec)
 //      snd_hda: # AppleHDAFunctionGroupCS8409::enableI2CClock: 
         // codes from windows cs4208_38.inf file
         // 0x9008 = PLL1_EN(0x1000),I2C_EN(0x8)
+
+        // 1691 is actually 1689 on 13,1
+
         snd_hda_coef_item(codec, 0, CS8409_VENDOR_NID, 0x0000, 0x0000, 0x00009008, 1691 ); // AppleHDAFunctionGroupCS8409::enableI2C  coef read 1691
         snd_hda_coef_item(codec, 1, CS8409_VENDOR_NID, 0x0000, 0x9008, 0x00000000, 1695 ); // AppleHDAFunctionGroupCS8409::enableI2C  coef write 1695
 
@@ -1831,7 +1850,7 @@ static void enable_GPIforUR(struct hda_codec *codec, int mask)
         //snd_hda_codec_write(codec, codec->core.afg, 0, AC_VERB_SET_GPIO_UNSOLICITED_RSP_MASK, 0x00000001); // 0x00171901
 //      snd_hda:     gpio unsol enable 1 0x01
 
-
+        // this is 0x0017160d on 13,1
         snd_hda_codec_write(codec, codec->core.afg, 0, AC_VERB_SET_GPIO_MASK, mask); // 0x00171605
 
         snd_hda_codec_write(codec, codec->core.afg, 0, AC_VERB_SET_GPIO_DIRECTION, 0x00000000); // 0x00171700
@@ -1937,6 +1956,7 @@ static void cs42l83_external_control_GPIO_clear_2(struct hda_codec *codec,int ma
 
         snd_hda_codec_write(codec, codec->core.afg, 0, AC_VERB_SET_GPIO_DIRECTION, 0x00000002); // 0x00171702
         snd_hda_codec_write(codec, codec->core.afg, 0, AC_VERB_SET_GPIO_DATA, 0x00000000); // 0x00171500
+        // this is 0x0017160f on 13,1
         snd_hda_codec_write(codec, codec->core.afg, 0, AC_VERB_SET_GPIO_MASK, mask); // 0x00171607
 
         //snd_hda_codec_write(codec, codec->core.afg, 0, AC_VERB_SET_POWER_STATE, 0x00000003); // 0x00170503
@@ -1964,7 +1984,9 @@ static void cs42l83_external_control_GPIO_set_2(struct hda_codec *codec,int mask
 
 
         snd_hda_codec_write(codec, codec->core.afg, 0, AC_VERB_SET_GPIO_DIRECTION, 0x00000002); // 0x00171702
+        // this is 0x00171500 on 13,1
         snd_hda_codec_write(codec, codec->core.afg, 0, AC_VERB_SET_GPIO_DATA, 0x00000002); // 0x00171502
+        // this is 0x0017160f on 13,1
         snd_hda_codec_write(codec, codec->core.afg, 0, AC_VERB_SET_GPIO_MASK, mask); // 0x00171607
 
         //snd_hda_codec_write(codec, codec->core.afg, 0, AC_VERB_SET_POWER_STATE, 0x00000003); // 0x00170503

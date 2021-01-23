@@ -924,6 +924,7 @@ static void cs_8409_play_data_ssm3(struct hda_codec *codec)
 
 
 // macbook pro subsystem ids
+// 13,1 0x106b3300
 // 14,1 0x106b3300
 // 14,2 0x106b3600
 // 14,3 0x106b3900
