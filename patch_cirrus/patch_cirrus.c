@@ -1666,6 +1666,9 @@ static int cs_8409_init(struct hda_codec *codec)
 						// so now we need to force the rates and formats to the single one Apple defines ie 44.1 kHz and S24_LE
 						// probably can leave S32_LE
 						// we can still handle 2/4 channel (what about 1 channel?)
+						// attempt to force stereo only - hopefully then surround sound should be down mixed by pulse
+						// well it seems to set the stream format initially to stereo but 4 channel is still an option
+						hinfo->channels_max = 2;
 						hinfo->rates = SNDRV_PCM_RATE_44100;
 						hinfo->formats = SNDRV_PCM_FMTBIT_S32_LE | SNDRV_PCM_FMTBIT_S24_LE;
 						codec_dbg(codec, "playback info stream forced nid 0x%02x rates 0x%08x formats 0x%016llx\n",hinfo->nid,hinfo->rates,hinfo->formats);
